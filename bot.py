@@ -9,6 +9,7 @@ import logging
 from typing import Dict, List, Optional
 from config import (
     PAGE_ACCESS_TOKEN,
+    INSTAGRAM_ACCESS_TOKEN,
     VERIFY_TOKEN,
     GROQ_API_KEY,
     GROQ_API_URL,
@@ -152,8 +153,8 @@ def cache_message(mid: str, content: str, role: str):
 def handle_messages():
     data = request.json
     
-    if data.get('object') != 'page':
-        return jsonify({'status': 'not a page event'}), 404
+    if data.get('object') not in ['page', 'instagram']:
+        return jsonify({'status': 'unknown event object'}), 404
     
     for entry in data.get('entry', []):
         for event in entry.get('messaging', []):
@@ -196,15 +197,23 @@ def handle_messages():
                 
                 # Generate and send response
                 response_text = generate_response(sender_id, full_message)
-                send_message(sender_id, response_text)
+                platform = data.get('object', 'page')
+                send_message(sender_id, response_text, platform)
                 
-                send_action(sender_id, "typing_off")
+                send_action(sender_id, "typing_off", platform)
     
     return jsonify({'status': 'success'}), 200
 
-def send_message(recipient_id, text):
+def get_token(platform):
+    """Get the appropriate access token based on platform."""
+    if platform == 'instagram':
+        return INSTAGRAM_ACCESS_TOKEN
+    return PAGE_ACCESS_TOKEN
+
+def send_message(recipient_id, text, platform='page'):
     """Send text message to user."""
-    url = f'https://graph.facebook.com/v18.0/me/messages?access_token={PAGE_ACCESS_TOKEN}'
+    token = get_token(platform)
+    url = f'https://graph.facebook.com/v18.0/me/messages?access_token={token}'
     
     # Split long messages
     chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
@@ -224,9 +233,11 @@ def send_message(recipient_id, text):
                 
         except requests.RequestException as e:
             logger.error(f"Failed to send message: {e}")
-def send_action(recipient_id, action):
+
+def send_action(recipient_id, action, platform='page'):
     """Send sender action (typing_on, mark_seen, etc)."""
-    url = f'https://graph.facebook.com/v18.0/me/messages?access_token={PAGE_ACCESS_TOKEN}'
+    token = get_token(platform)
+    url = f'https://graph.facebook.com/v18.0/me/messages?access_token={token}'
     requests.post(url, json={
         'recipient': {'id': recipient_id},
         'sender_action': action
