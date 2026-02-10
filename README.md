@@ -7,16 +7,21 @@
 ![Powered by Groq](https://img.shields.io/badge/Powered%20by-Groq-orange?style=for-the-badge)
 ![AI Personality](https://img.shields.io/badge/Personality-PrawnKing-blue?style=for-the-badge)
 
-## 📱 How to Chat
+## 📱 How to Chat On Messenger
 1. Open **Messenger**.
 2. Search for **"A Simple Bot"**.
+3. Send a message to start chatting!
+
+## 📱 Also integrated to Instagram!
+1. Open **Instagram**.
+2. Search for **"__prawnking (A Simple Bot)"**.
 3. Send a message to start chatting!
 
 ## ✨ Features
 - **🧠 Smart AI Assistant**: Powered by advanced LLMs (Llama 3, Mixtral) to answer your questions.
 - **🦐 Unique Personality**: Expect dad jokes, puns, and a lot of prawn references.
-- **💾 Context Aware**: Remembers our conversation history (resets after 60s of silence).
-- **🌍 Multilingual**: Chats with you in your preferred language.
+- **💾 Context Aware**: Remembers conversation history (resets after 60s of silence).
+- **🌍 Multilingual**: Chats with you in your preferred language (if model supports).
 
 ## 📜 Rules
 1. **Be Nice**: No hate speech, bullying, or inappropriate content.
