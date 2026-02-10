@@ -9,7 +9,7 @@
 
 ## 📱 How to Chat
 1. Open **Messenger**.
-2. Search for **"PrawnKing"**.
+2. Search for **"A Simple Bot"**.
 3. Send a message to start chatting!
 
 ## ✨ Features
