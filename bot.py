@@ -135,6 +135,19 @@ def verify_webhook():
         return challenge
     return 'Verification failed', 403
 
+# Message Cache for Reply Context (mid -> content)
+message_store: Dict[str, dict] = {}
+MESSAGE_STORE_SIZE = 200
+
+def cache_message(mid: str, content: str, role: str):
+    """Cache message content for reply context resolution."""
+    if len(message_store) >= MESSAGE_STORE_SIZE:
+        # Remove oldest item (simple heuristic: first key)
+        first_key = next(iter(message_store))
+        del message_store[first_key]
+    
+    message_store[mid] = {"content": content, "role": role}
+
 @app.route('/webhook', methods=['POST'])
 def handle_messages():
     data = request.json
@@ -159,16 +172,30 @@ def handle_messages():
                 sender_id = event['sender']['id']
                 message_text = event['message']['text']
                 
-                # Check for reply context (if available) - FB provides reply_to mid but not content directly
-                # For basic implementation, we just use conversation memory which serves similar purpose
+                # Cache user message
+                cache_message(message_id, message_text, "user")
                 
-                logger.info(f"Processing message from {sender_id}: {message_text}")
+                # Check for reply context
+                reply_context = ""
+                if 'reply_to' in event['message']:
+                    reply_mid = event['message']['reply_to'].get('mid')
+                    if reply_mid in message_store:
+                        replied_msg = message_store[reply_mid]
+                        role_name = "Bot" if replied_msg['role'] == 'assistant' else "User"
+                        reply_content = replied_msg['content'][:100]
+                        reply_context = f"[Replying to {role_name}: \"{reply_content}\"]\n"
+                        logger.info(f"Found reply context: {reply_context.strip()}")
+                
+                # Combine context + message
+                full_message = reply_context + message_text
+                
+                logger.info(f"Processing message from {sender_id}: {full_message}")
                 
                 # Show typing indicator
                 send_action(sender_id, "typing_on")
                 
                 # Generate and send response
-                response_text = generate_response(sender_id, message_text)
+                response_text = generate_response(sender_id, full_message)
                 send_message(sender_id, response_text)
                 
                 send_action(sender_id, "typing_off")
@@ -183,11 +210,20 @@ def send_message(recipient_id, text):
     chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
     
     for chunk in chunks:
-        requests.post(url, json={
-            'recipient': {'id': recipient_id},
-            'message': {'text': chunk}
-        })
-
+        try:
+            response = requests.post(url, json={
+                'recipient': {'id': recipient_id},
+                'message': {'text': chunk}
+            })
+            response.raise_for_status()
+            
+            # Cache bot message for future replies
+            data = response.json()
+            if 'message_id' in data:
+                cache_message(data['message_id'], chunk, "assistant")
+                
+        except requests.RequestException as e:
+            logger.error(f"Failed to send message: {e}")
 def send_action(recipient_id, action):
     """Send sender action (typing_on, mark_seen, etc)."""
     url = f'https://graph.facebook.com/v18.0/me/messages?access_token={PAGE_ACCESS_TOKEN}'
