@@ -12,10 +12,7 @@
 2. Search for **"A Simple Bot"**.
 3. Send a message to start chatting!
 
-## 📱 Also integrated to Instagram!
-1. Open **Instagram**.
-2. Search for **"__prawnking (A Simple Bot)"**.
-3. Send a message to start chatting!
+> **Note:** Instagram support is currently in **Developer Mode**. Only added testers can chat with the bot on Instagram (@__prawnking). Messenger support is fully public!
 
 ## ✨ Features
 - **🧠 Smart AI Assistant**: Powered by advanced LLMs (Llama 3, Mixtral) to answer your questions.
