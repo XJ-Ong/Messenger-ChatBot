@@ -224,6 +224,8 @@ def send_message(recipient_id, text):
                 
         except requests.RequestException as e:
             logger.error(f"Failed to send message: {e}")
+            if e.response is not None:
+                logger.error(f"Response body: {e.response.text}")
 
 def send_action(recipient_id, action):
     """Send sender action (typing_on, mark_seen, etc)."""
