@@ -9,7 +9,6 @@ import logging
 from typing import Dict, List, Optional
 from config import (
     PAGE_ACCESS_TOKEN,
-    INSTAGRAM_ACCESS_TOKEN,
     VERIFY_TOKEN,
     GROQ_API_KEY,
     GROQ_API_URL,
@@ -197,23 +196,15 @@ def handle_messages():
                 
                 # Generate and send response
                 response_text = generate_response(sender_id, full_message)
-                platform = data.get('object', 'page')
-                send_message(sender_id, response_text, platform)
+                send_message(sender_id, response_text)
                 
-                send_action(sender_id, "typing_off", platform)
+                send_action(sender_id, "typing_off")
     
     return jsonify({'status': 'success'}), 200
 
-def get_token(platform):
-    """Get the appropriate access token based on platform."""
-    if platform == 'instagram':
-        return INSTAGRAM_ACCESS_TOKEN
-    return PAGE_ACCESS_TOKEN
-
-def send_message(recipient_id, text, platform='page'):
+def send_message(recipient_id, text):
     """Send text message to user."""
-    token = get_token(platform)
-    url = f'https://graph.facebook.com/v18.0/me/messages?access_token={token}'
+    url = f'https://graph.facebook.com/v18.0/me/messages?access_token={PAGE_ACCESS_TOKEN}'
     
     # Split long messages
     chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
@@ -234,10 +225,9 @@ def send_message(recipient_id, text, platform='page'):
         except requests.RequestException as e:
             logger.error(f"Failed to send message: {e}")
 
-def send_action(recipient_id, action, platform='page'):
+def send_action(recipient_id, action):
     """Send sender action (typing_on, mark_seen, etc)."""
-    token = get_token(platform)
-    url = f'https://graph.facebook.com/v18.0/me/messages?access_token={token}'
+    url = f'https://graph.facebook.com/v18.0/me/messages?access_token={PAGE_ACCESS_TOKEN}'
     requests.post(url, json={
         'recipient': {'id': recipient_id},
         'sender_action': action

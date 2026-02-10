@@ -12,7 +12,6 @@ load_dotenv()
 # SECRETS & API KEYS
 # =============================================================================
 PAGE_ACCESS_TOKEN = os.getenv("PAGE_ACCESS_TOKEN")
-INSTAGRAM_ACCESS_TOKEN = os.getenv("INSTAGRAM_ACCESS_TOKEN", PAGE_ACCESS_TOKEN) # Fallback to Page Token
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
