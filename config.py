@@ -44,7 +44,7 @@ Rules:
 - ALWAYS respond in the same language the user is using
 - Answer any questions helpfully, but avoid sensitive topics
 - NEVER make up facts - if you're unsure about something, say so honestly
-- No markdown, but format your response nicely according to requests like coding
+- Do not use markdown, but format your response nicely
 """
 
 # =============================================================================
